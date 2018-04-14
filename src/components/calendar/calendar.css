@@ -1,0 +1,58 @@
+.gridWeek{
+    display: grid;
+    width: 700px;
+    grid-template-columns: 2fr 2fr repeat(24, 1fr);
+    grid-template-rows: 50px;
+    box-sizing: border-box;
+}
+.gridWeek .grid-hour {
+    cursor: pointer;
+}
+.gridWeek .grid-hour.active {
+    background: #DBDBDB;
+}
+.gridWeek .grid-empty.active {
+    background-image: url(ok.png);
+    background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.gridWeek div[class^=grid] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #DCDCDE;
+    border-left: 0px;
+}
+.gridWeek div[class^=grid]:nth-child(1) {
+    border-left: 1px solid #DCDCDE;
+}
+.gridWeek div[class^=grid]:nth-child(2) {
+    background-color: #949494;
+}
+
+.gridLabels {
+    display: grid;
+    width: 700px;
+    grid-template-columns: 2fr 2fr repeat(8, 2fr 1fr);
+    grid-template-rows: 50px;
+}
+.gridLabels .grid-label {
+    position: relative;
+    display: flex;
+}
+.gridLabels .grid-label:nth-child(2) {
+    align-items: center;
+    text-align: center;
+}
+.gridLabels .grid-label:nth-child(2n+3) {
+    align-items: center;
+}
+.gridLabels .grid-label:nth-child(2n+3):after {
+    content : "";
+    position: absolute;
+    left    : 0;
+    top  : 70%;
+    border-left: 1px solid #9B9B9D;
+    height   : 30%;
+}
