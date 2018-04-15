@@ -1,5 +1,5 @@
-import React, {Component} from 'react';
-import PropTypes from 'prop-types';
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 
 class MyComponent extends Component {
     render() {
@@ -8,15 +8,17 @@ class MyComponent extends Component {
         );
     }
     clickCellHandler = (el) => {
-        console.log(this.props.cellMinute);
+        console.log(this.props.cellMinute)
         const {setHoursForWeek} = this.props
         setHoursForWeek(this.props.cellMinute)
     }
 }
 
 MyComponent.propTypes = {
+    //from props
     cellClass: PropTypes.string.isRequired,
-    cellMinute: PropTypes.number.isRequired
+    cellMinute: PropTypes.number.isRequired,
+    setHoursForWeek: PropTypes.func.isRequired
 };
 
-export default MyComponent;
+export default MyComponent

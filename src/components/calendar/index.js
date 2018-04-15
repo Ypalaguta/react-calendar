@@ -3,18 +3,20 @@ import Head from '../../components/calendar/Head'
 import Week from '../../components/calendar/Week'
 import {connect} from 'react-redux'
 import {moduleName, parseLocalData, unparseLocalData} from '../../ducks/calendar'
-import {setData} from "../../ducks/calendar";
-
+import {setData, calendarSelector} from "../../ducks/calendar";
 import './index.css'
-
 import PropTypes from 'prop-types'
 
 class Calendar extends Component {
     render() {
+        console.log('Calendar render')
         const {weeks} = this.props
         let weekComponents = []
-        for(let key in weeks)
-            weekComponents.push(<Week key={key} weekLabel={key} hours={weeks[key]} setData={this.setWeeksData}/>)
+        for(let key in weeks) {
+            weekComponents.push(<Week key={key}
+                                      weekLabel={key} /*hours={weeks[key]}*/
+                                      setWeeksData={this.setWeeksData}/>)
+        }
         return (
             <div>
                 <Head labels={[
@@ -32,15 +34,17 @@ class Calendar extends Component {
             </div>
         );
     }
-
-    setWeeksData = (week) =>{
-        const {setData, weeks} = this.props
-        setData(weeks, week)
+    setWeeksData = (key, data) =>{
+        const {setData} = this.props
+        setData({key, data})
     }
 }
 
-Calendar.propTypes = {};
+Calendar.propTypes = {
+    //from connect
+    weeks: PropTypes.object.isRequired
+};
 
 export default connect((store)=>({
-    weeks: store[moduleName].get('localData').toJS()
+    weeks: calendarSelector(store)
 }), {setData})(Calendar);

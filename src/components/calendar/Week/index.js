@@ -1,7 +1,8 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
 import Day from './Day'
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
+import {hoursSelector, moduleName} from '../../../ducks/calendar'
 
 class Week extends Component {
     render() {
@@ -41,13 +42,14 @@ class Week extends Component {
     }
 
     setHoursForWeek = (minute) =>{
-        const {setData, weekLabel} = this.props
+        const {setWeeksData, weekLabel} = this.props
         const hours = this.addAndRefactorMinute(minute)
-        setData({[weekLabel]: hours})
+        setWeeksData(weekLabel, hours)
     }
 
     addAndRefactorMinute(minute){
-        let currentData = this.props.hours
+        const {hours} = this.props
+        let currentData = hours.map(el=>el)
         currentData.push({bt:minute, et:minute+60})
         return currentData
     }
@@ -56,7 +58,11 @@ class Week extends Component {
 Week.propTypes = {
     //from props
     weekLabel: PropTypes.string.isRequired,
-    hours: PropTypes.array
+    setWeeksData: PropTypes.func.isRequired,
+    //from connect
+    hours: PropTypes.array.isRequired,
 };
 
-export default Week;
+export default connect((state, props) => ({
+        hours: hoursSelector(state, props)
+}))(Week)
