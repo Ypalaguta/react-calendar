@@ -11,5 +11,5 @@ const enhancer = applyMiddleware(sagaMiddleware, logger)
 const store = createStore(reducer, enhancer)
 
 sagaMiddleware.run(rootSaga)
-
+window.store = store
 export default store

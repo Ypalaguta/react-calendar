@@ -21,14 +21,17 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px solid #DCDCDE;
+    border: 1px solid #c2c2c2;
     border-left: 0px;
 }
 .gridWeek div[class^=grid]:nth-child(1) {
-    border-left: 1px solid #DCDCDE;
+    border-left: 1px solid #c2c2c2;
 }
 .gridWeek div[class^=grid]:nth-child(2) {
     background-color: #949494;
+}
+.gridWeek:nth-child(n+3) div[class^=grid]{
+    border-top:0px;
 }
 
 .gridLabels {
