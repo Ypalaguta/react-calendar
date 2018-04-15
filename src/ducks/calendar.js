@@ -1,6 +1,6 @@
 import {Record} from 'immutable'
 import {getDataUrl, setDataUrl} from '../config'
-import {all, take, put, call, takeEvery} from 'redux-saga/effects'
+import {all, take, put, call, takeEvery, cps} from 'redux-saga/effects'
 import {createSelector} from 'reselect'
 
 const appName = 'calendarApp'
@@ -19,13 +19,13 @@ export const DATA_ERROR = `${prefix}/DATA_ERROR`
 export const TEST = 'TEST'
 
 const defaultWeek = Record({
-        MO: [],
-        TU: [],
-        WE: [],
-        TH: [],
-        FR: [],
-        SA: [],
-        SU: []
+        mo: [],
+        tu: [],
+        we: [],
+        th: [],
+        fr: [],
+        sa: [],
+        su: []
 })
 
 const defaultStore = Record({
@@ -42,8 +42,8 @@ export default function reducer(store = new defaultStore(), action) {
     switch (type) {
         case DATA_LOAD:
             return store
-                .set('data', payload.data)
-                .set('localData', payload.data)
+                .set('data', new defaultWeek(payload.data))
+                .set('localData',new defaultWeek(payload.data))
                 // .set('msg', payload.msg)
                 .set('error', '')
         case DATA_SAVE:
@@ -76,6 +76,7 @@ export function saveData(data) {
         payload: data
     }
 }
+
 export function setData(data) {
     return {
         type: DATA_SET,
@@ -83,15 +84,20 @@ export function setData(data) {
     }
 }
 
+function fetchData(url) {
+   return fetch(url)
+        .then(data=>data.json())
+        .then(data=>{console.log(data); return data;})
+}
+
 function* getDataSaga() {
     while (true) {
         const action = yield take(DATA_LOAD_REQUEST)
-        const {payload} = action
         try {
-            const data = yield call(fetch, getDataUrl)
+            const data = yield call(fetchData, getDataUrl)
             yield put({
                 type: DATA_LOAD,
-                payload: {data: data.json}
+                payload: {data}
             })
         }
         catch (error){
@@ -109,7 +115,10 @@ function* setDataSaga() {
         const {payload} = action
         const params = {
             method: 'POST',
-            body: JSON.stringify(payload.data)
+            body: JSON.stringify(payload.data),
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            })
         }
         try {
             const data = yield call(fetch, [setDataUrl, params])

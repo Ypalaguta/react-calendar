@@ -3,11 +3,14 @@ import Head from '../../components/calendar/Head'
 import Week from '../../components/calendar/Week'
 import {connect} from 'react-redux'
 import {moduleName, parseLocalData, unparseLocalData} from '../../ducks/calendar'
-import {setData, calendarSelector} from "../../ducks/calendar";
+import {setData, loadData, calendarSelector} from "../../ducks/calendar";
 import './index.css'
 import PropTypes from 'prop-types'
 
 class Calendar extends Component {
+    componentWillMount(){
+        this.props.loadData();
+    }
     render() {
         console.log('Calendar render')
         const {weeks} = this.props
@@ -47,4 +50,4 @@ Calendar.propTypes = {
 
 export default connect((store)=>({
     weeks: calendarSelector(store)
-}), {setData})(Calendar);
+}), {setData, loadData})(Calendar);
