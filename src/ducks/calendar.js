@@ -1,6 +1,6 @@
 import {Record} from 'immutable'
 import {getDataUrl, setDataUrl} from '../config'
-import {all, take, put, call, takeEvery, cps} from 'redux-saga/effects'
+import {all, take, put, call} from 'redux-saga/effects'
 import {createSelector} from 'reselect'
 
 const appName = 'calendarApp'
@@ -16,7 +16,6 @@ export const DATA_SAVE = `${prefix}/DATA_SAVE`                 //set local data
 export const DATA_SAVE_REQUEST = `${prefix}/DATA_SAVE_REQUEST` //save data request
 export const DATA_REVERT = `${prefix}/DATA_REVERT`            //set local data to default (data)
 export const DATA_ERROR = `${prefix}/DATA_ERROR`
-export const TEST = 'TEST'
 
 const defaultWeek = Record({
         mo: [],
@@ -87,12 +86,12 @@ export function setData(data) {
 function fetchData(url) {
    return fetch(url)
         .then(data=>data.json())
-        .then(data=>{console.log(data); return data;})
+        .then(data=>data)
 }
 
 function* getDataSaga() {
     while (true) {
-        const action = yield take(DATA_LOAD_REQUEST)
+        yield take(DATA_LOAD_REQUEST)
         try {
             const data = yield call(fetchData, getDataUrl)
             yield put({

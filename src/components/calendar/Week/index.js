@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import Day from './Day'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import {hoursSelector, moduleName} from '../../../ducks/calendar'
+import {hoursSelector} from '../../../ducks/calendar'
 
 class Week extends Component {
     render() {

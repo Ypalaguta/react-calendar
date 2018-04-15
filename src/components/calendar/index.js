@@ -2,10 +2,10 @@ import React, {Component} from 'react'
 import Head from '../../components/calendar/Head'
 import Week from '../../components/calendar/Week'
 import {connect} from 'react-redux'
-import {moduleName, parseLocalData, unparseLocalData} from '../../ducks/calendar'
-import {setData, loadData, calendarSelector} from "../../ducks/calendar";
-import './index.css'
+import {setData, loadData, calendarSelector} from "../../ducks/calendar"
+import {RaisedButton} from 'material-ui'
 import PropTypes from 'prop-types'
+import './index.css'
 
 class Calendar extends Component {
     componentWillMount(){
@@ -34,6 +34,8 @@ class Calendar extends Component {
                     '21:00', '',
                 ]}/>
                 {weekComponents}
+                <RaisedButton>Clear</RaisedButton>
+                <RaisedButton>Save changes</RaisedButton>
             </div>
         );
     }
