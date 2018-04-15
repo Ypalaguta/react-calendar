@@ -5,7 +5,6 @@ import {all, take, put, call, takeEvery} from 'redux-saga/effects'
 const appName = 'calendarApp'
 
 export const moduleName = 'calendar'
-export const DATA_GET = 'DATA_GET'                  //get local data
 export const DATA_LOAD = 'DATA_LOAD'                 //load data
 export const DATA_LOAD_REQUEST = 'DATA_LOAD_REQUEST' //load data request
 export const DATA_SET = 'DATA_SET'                  //set local data
@@ -15,8 +14,7 @@ export const DATA_REVERT = 'DATA_REVERT'            //set local data to default 
 export const DATA_ERROR = 'DATA_ERROR'
 export const TEST = 'TEST'
 
-function defaultWeek (){
-    return {
+const defaultWeek = Record({
         MO: [],
         TU: [],
         WE: [],
@@ -24,13 +22,12 @@ function defaultWeek (){
         FR: [],
         SA: [],
         SU: []
-    }
-}
+})
 
 
 const defaultStore = Record({
-    data: defaultWeek(),
-    localData: defaultWeek(),
+    data: new defaultWeek(),
+    localData: new defaultWeek(),
     isLoading: 'sdfsdf',
     isSaving: false,
     msg: null,
@@ -53,7 +50,7 @@ export default function reducer(store = new defaultStore(), action) {
                 .set('error', '')
         case DATA_SET:
             return store
-                .set('localData', {...payload})
+                .set('localData', new defaultWeek({...payload}))
         case DATA_REVERT:
             return store
                 .set('localData', store.get('data'))
@@ -134,20 +131,6 @@ function* setDataSaga() {
             })
         }
     }
-}
-
-export function parseLocalData(weeksRecord) {
-    const weeksJs = weeksRecord.get('localData')
-    let items = []
-    for(let key in weeksJs)
-        items.push(Object.assign({},{hours:weeksJs[key]},{week:key}))
-    return items
-}
-
-export function unparseLocalData(weeksArray) {
-    let items = {}
-    weeksArray.forEach(el=>{items=Object.assign({},items,{[el.week]:el.hours})})
-    return items
 }
 
 export function* saga () {

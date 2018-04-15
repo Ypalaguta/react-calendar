@@ -3,7 +3,7 @@ import Head from '../../components/calendar/Head'
 import Week from '../../components/calendar/Week'
 import {connect} from 'react-redux'
 import {moduleName, parseLocalData, unparseLocalData} from '../../ducks/calendar'
-import {DATA_SET, setData} from "../../ducks/calendar";
+import {setData} from "../../ducks/calendar";
 
 import './index.css'
 
@@ -12,6 +12,9 @@ import PropTypes from 'prop-types'
 class Calendar extends Component {
     render() {
         const {weeks} = this.props
+        let weekComponents = []
+        for(let key in weeks)
+            weekComponents.push(<Week key={key} weekLabel={key} hours={weeks[key]} setData={this.setWeeksData}/>)
         return (
             <div>
                 <Head labels={[
@@ -25,23 +28,19 @@ class Calendar extends Component {
                     '18:00', '',
                     '21:00', '',
                 ]}/>
-                {weeks.map(el=>{return <Week key={el.week}
-                                             weekLabel={el.week}
-                                             hours={el.hours}
-                                             setData={this.setWeeksData}/>})}
+                {weekComponents}
             </div>
         );
     }
 
-    setWeeksData = (week, hours) =>{
+    setWeeksData = (week) =>{
         const {setData, weeks} = this.props
-        const unparsedWeeks = unparseLocalData(weeks)
-        setData(Object.assign({}, unparsedWeeks, {[week]:hours}))
+        setData(weeks, week)
     }
 }
 
 Calendar.propTypes = {};
 
 export default connect((store)=>({
-    weeks: parseLocalData(store[moduleName])
+    weeks: store[moduleName].get('localData').toJS()
 }), {setData})(Calendar);

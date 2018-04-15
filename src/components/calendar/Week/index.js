@@ -43,7 +43,7 @@ class Week extends Component {
     setHoursForWeek = (minute) =>{
         const {setData, weekLabel} = this.props
         const hours = this.addAndRefactorMinute(minute)
-        setData(weekLabel, hours)
+        setData({[weekLabel]: hours})
     }
 
     addAndRefactorMinute(minute){
