@@ -14,17 +14,18 @@ export const DATA_LOAD_REQUEST = `${prefix}/DATA_LOAD_REQUEST` //load data reque
 export const DATA_SET = `${prefix}/DATA_SET`                  //set local data
 export const DATA_SAVE = `${prefix}/DATA_SAVE`                 //set local data
 export const DATA_SAVE_REQUEST = `${prefix}/DATA_SAVE_REQUEST` //save data request
+export const DATA_CLEAR = `${prefix}/DATA_CLEAR`            //set local data to default (data)
 export const DATA_REVERT = `${prefix}/DATA_REVERT`            //set local data to default (data)
 export const DATA_ERROR = `${prefix}/DATA_ERROR`
 
 const defaultWeek = Record({
-        mo: [],
-        tu: [],
-        we: [],
-        th: [],
-        fr: [],
-        sa: [],
-        su: []
+    mo: new Array(24).fill(false),
+    tu: new Array(24).fill(false),
+    we: new Array(24).fill(false),
+    th: new Array(24).fill(false),
+    fr: new Array(24).fill(false),
+    sa: new Array(24).fill(false),
+    su: new Array(24).fill(false)
 })
 
 const defaultStore = Record({
@@ -42,7 +43,7 @@ export default function reducer(store = new defaultStore(), action) {
         case DATA_LOAD:
             return store
                 .set('data', new defaultWeek(payload.data))
-                .set('localData',new defaultWeek(payload.data))
+                .set('localData', new defaultWeek(payload.data))
                 // .set('msg', payload.msg)
                 .set('error', '')
         case DATA_SAVE:
@@ -51,10 +52,13 @@ export default function reducer(store = new defaultStore(), action) {
         // .set('msg', payload.msg)
         case DATA_SET:
             return store
-                 .setIn(['localData', payload.key], payload.data)
+                .setIn(['localData', payload.key], payload.data)
         case DATA_REVERT:
             return store
                 .set('localData', store.get('data'))
+        case DATA_CLEAR:
+            return store
+                .set('localData', new defaultWeek())
         case DATA_ERROR:
             return store
                 .set('error', payload.error)
@@ -83,10 +87,16 @@ export function setData(data) {
     }
 }
 
+export function clearData() {
+    return {
+        type: DATA_CLEAR
+    }
+}
+
 function fetchData(url) {
-   return fetch(url)
-        .then(data=>data.json())
-        .then(data=>data)
+    return fetch(url)
+        .then(data => data.json())
+        .then(data => data)
 }
 
 function* getDataSaga() {
@@ -96,10 +106,10 @@ function* getDataSaga() {
             const data = yield call(fetchData, getDataUrl)
             yield put({
                 type: DATA_LOAD,
-                payload: {data}
+                payload: {data:decodeTimeSchedule(data)}
             })
         }
-        catch (error){
+        catch (error) {
             yield put({
                 type: DATA_ERROR,
                 error
@@ -114,7 +124,7 @@ function* setDataSaga() {
         const {payload} = action
         const params = {
             method: 'POST',
-            body: JSON.stringify(payload.data),
+            body: JSON.stringify(encodeTimeSchedule(payload.data).toJS()),
             headers: new Headers({
                 'Content-Type': 'application/json'
             })
@@ -126,7 +136,7 @@ function* setDataSaga() {
                 payload: {data: data.json}
             })
         }
-        catch (error){
+        catch (error) {
             yield put({
                 type: DATA_ERROR,
                 error
@@ -142,8 +152,65 @@ export const hoursSelector = createSelector(stateSelector, weekLabelSelector,
 export const calendarSelector = createSelector(stateSelector,
     (state) => state.get('localData').toJS());
 
+/**
+ *
+ * @param scheduleArr / new defaultWeek() / immutable Range() type
+ * @returns {Immutable.Map<string, any>}
+ */
+export function encodeTimeSchedule(scheduleArr) {
+    let week = new defaultWeek(scheduleArr)
+    let weekJs = week.toJS()
+    for (let key in weekJs) {
+        console.log('--',weekJs,key)
+        let resultArr = []
+        let start = 0;
+        let end = 0;
+        for (let i = 0; i < 24; i++) {
+            console.log('+',start, end, weekJs[key][i])
 
-export function* saga () {
+            if(weekJs[key][i])
+                end++
+            else {
+                if(start !== end)
+                    resultArr.push({bt:(start*60), et:((end*60)-1)})
+                end = i+1
+                start = i+1
+            }
+        }
+        week = week.set(key, resultArr)
+    }
+    return new defaultWeek(week)
+}
+
+/**
+ *
+ * @param scheduleObj object of schedule
+ * @returns {Immutable.Map<string, any>}
+ */
+export function decodeTimeSchedule(scheduleObj) {
+    let week = new defaultWeek()
+    // 24 byte for all day flag
+    for (let key in scheduleObj) {
+        if (scheduleObj[key]) {
+            let result = new Array(24).fill(false)
+            result.ad = false
+            scheduleObj[key].forEach(el => {
+                console.log(key, el)
+                for (let i = (el.bt / 60); i < ((el.et + 1) / 60); i++)
+                    result[i] = true
+            })
+            result.ad = checkForAd(result)
+            week = week.set(key, result)
+        }
+    }
+    return new defaultWeek(week)
+}
+
+export function checkForAd(arr) {
+    return arr.reduce((acc, el) => (acc && el))
+}
+
+export function* saga() {
     yield all([
         getDataSaga(),
         setDataSaga()
