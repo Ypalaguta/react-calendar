@@ -48,6 +48,7 @@ export default function reducer(store = new defaultStore(), action) {
                 .set('error', '')
         case DATA_SAVE:
             return store
+                .set('data', new defaultWeek(store.get('localData')))
                 .set('error', '')
         // .set('msg', payload.msg)
         case DATA_SET:
@@ -92,10 +93,18 @@ export function clearData() {
         type: DATA_CLEAR
     }
 }
-
+function statusHelper (response) {
+    if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(response)
+    } else {
+        return Promise.reject(new Error(response.statusText))
+    }
+}
 function fetchData(url) {
     return fetch(url)
+        .then(statusHelper)
         .then(data => data.json())
+        .catch(error => error)
         .then(data => data)
 }
 
@@ -118,22 +127,27 @@ function* getDataSaga() {
     }
 }
 
+function fetchPostData(url, params) {
+    return fetch(url, params)
+        .then(statusHelper)
+        .catch(error => error)
+}
+
 function* setDataSaga() {
     while (true) {
         const action = yield take(DATA_SAVE_REQUEST)
         const {payload} = action
         const params = {
             method: 'POST',
-            body: JSON.stringify(encodeTimeSchedule(payload.data).toJS()),
+            body: JSON.stringify(encodeTimeSchedule(payload)),
             headers: new Headers({
                 'Content-Type': 'application/json'
             })
         }
         try {
-            const data = yield call(fetch, [setDataUrl, params])
+            const postReq = yield call(fetchPostData, setDataUrl, params)
             yield put({
                 type: DATA_SAVE,
-                payload: {data: data.json}
             })
         }
         catch (error) {
@@ -152,6 +166,22 @@ export const hoursSelector = createSelector(stateSelector, weekLabelSelector,
 export const calendarSelector = createSelector(stateSelector,
     (state) => state.get('localData').toJS());
 
+export const datasEqualSelector = createSelector(stateSelector, (state) => {
+    const localData = state.get('localData')
+    const serverData = state.get('data')
+    if(localData===serverData) return true
+    const localDataJs = localData.toJS()
+    const serverDataJs = serverData.toJS()
+    for(let key in localDataJs) {
+        for(let i=0;i<24;i++){
+            if(localDataJs[key][i]!==serverDataJs[key][i]){
+                return false
+            }
+        }
+    }
+    return true
+});
+
 /**
  *
  * @param scheduleArr / new defaultWeek() / immutable Range() type
@@ -161,13 +191,10 @@ export function encodeTimeSchedule(scheduleArr) {
     let week = new defaultWeek(scheduleArr)
     let weekJs = week.toJS()
     for (let key in weekJs) {
-        console.log('--',weekJs,key)
         let resultArr = []
         let start = 0;
         let end = 0;
         for (let i = 0; i < 24; i++) {
-            console.log('+',start, end, weekJs[key][i])
-
             if(weekJs[key][i])
                 end++
             else {
@@ -195,7 +222,6 @@ export function decodeTimeSchedule(scheduleObj) {
             let result = new Array(24).fill(false)
             result.ad = false
             scheduleObj[key].forEach(el => {
-                console.log(key, el)
                 for (let i = (el.bt / 60); i < ((el.et + 1) / 60); i++)
                     result[i] = true
             })

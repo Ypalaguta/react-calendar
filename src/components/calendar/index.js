@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import Head from '../../components/calendar/Head'
 import Week from '../../components/calendar/Week'
 import {connect} from 'react-redux'
-import {setData, loadData, clearData, calendarSelector} from "../../ducks/calendar"
+import {setData, saveData, loadData, clearData, calendarSelector, datasEqualSelector} from "../../ducks/calendar"
 import {RaisedButton} from 'material-ui'
 import PropTypes from 'prop-types'
 import './index.css'
@@ -26,7 +26,7 @@ class Calendar extends Component {
 
     render() {
         console.log('Calendar render')
-        const {weeks} = this.props
+        const {weeks, isDatasEqual} = this.props
         let weekComponents = []
         for (let key in weeks) {
             weekComponents.push(<Week key={key}
@@ -50,8 +50,8 @@ class Calendar extends Component {
                 <div className='buttonsRow'>
                     <RaisedButton buttonStyle={buttonStyle} style={divStyle} onClick={this.clickClearButtonHandler}
                                   overlayStyle={paddings} disabled={this.canClear(weeks)}>Clear</RaisedButton>
-                    <RaisedButton buttonStyle={buttonStyle} style={divStyle} overlayStyle={paddings}>Save
-                        changes</RaisedButton>
+                    <RaisedButton buttonStyle={buttonStyle} style={divStyle} overlayStyle={paddings}
+                    disabled={isDatasEqual} onClick={this.clickSaveDataHandler}>Save changes</RaisedButton>
                 </div>
             </div>
         );
@@ -61,7 +61,6 @@ class Calendar extends Component {
         const {setData} = this.props
         setData({key, data})
     }
-
     canClear(weeks){
         for(let key in weeks){
             for(let i=0;i<24;i++)
@@ -73,6 +72,10 @@ class Calendar extends Component {
         const {clearData} = this.props
         clearData();
     }
+    clickSaveDataHandler = (el) =>{
+        const {saveData, weeks} = this.props
+        saveData(weeks)
+    }
 }
 
 Calendar.propTypes = {
@@ -81,5 +84,6 @@ Calendar.propTypes = {
 };
 
 export default connect((store) => ({
-    weeks: calendarSelector(store)
-}), {setData, loadData, clearData})(Calendar);
+    weeks: calendarSelector(store),
+    isDatasEqual: datasEqualSelector(store)
+}), {setData, saveData, loadData, clearData})(Calendar);
