@@ -45,5 +45,5 @@ Week.propTypes = {
 };
 
 export default connect((state, props) => ({
-        hours: hoursSelector(state, props)
+    hours: hoursSelector(state, props),
 }))(Week)
