@@ -68,3 +68,8 @@
 button:disabled div {
     background: #d0d0d0;
 }
+
+.gridWeek::selection, .gridWeek .grid-label::selection,
+.gridLabels::selection, .gridLabels .grid-label::selection {
+    background: transparent; /* WebKit/Blink Browsers */
+}
