@@ -2,12 +2,12 @@ import React, {Component} from 'react'
 import Day from './Day'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import {hoursSelector, checkForAd} from '../../../ducks/calendar'
+import {hoursSelector, checkForAd, moduleName} from '../../../ducks/calendar'
 
 class Week extends Component {
     render() {
         console.log('Week render')
-        const {weekLabel, hours} = this.props
+        const {weekLabel, hours, isMousePressed} = this.props
         // console.log('------------',this.props,hours)
         return (
             <div className='gridWeek'>
@@ -17,6 +17,7 @@ class Week extends Component {
                                               cellClass={this.getClassNameForHour(num)}
                                               cellMinute={num}
                                               setHoursForWeek={this.setHoursForWeek}
+                                              isMousePressed = {isMousePressed}
                 />))}
 
             </div>
@@ -44,6 +45,7 @@ Week.propTypes = {
     hours: PropTypes.array.isRequired,
 };
 
-export default connect((state, props) => ({
-    hours: hoursSelector(state, props),
+export default connect((store, props) => ({
+    hours: hoursSelector(store, props),
+    isMousePressed: store[moduleName].isMousePressed,
 }))(Week)

@@ -16,6 +16,7 @@ export const DATA_SAVE = `${prefix}/DATA_SAVE`                 //set local data
 export const DATA_SAVE_REQUEST = `${prefix}/DATA_SAVE_REQUEST` //save data request
 export const DATA_CLEAR = `${prefix}/DATA_CLEAR`            //set local data to default (data)
 export const DATA_REVERT = `${prefix}/DATA_REVERT`            //set local data to default (data)
+export const DATA_MOUSE_PRESSED = `${prefix}/DATA_MOUSE_PRESSED`            //set local data to default (data)
 export const DATA_ERROR = `${prefix}/DATA_ERROR`
 
 const defaultWeek = Record({
@@ -35,6 +36,7 @@ const defaultStore = Record({
     isSaving: false,
     msg: null,
     error: null,
+    isMousePressed: false,
 })
 
 export default function reducer(store = new defaultStore(), action) {
@@ -57,6 +59,9 @@ export default function reducer(store = new defaultStore(), action) {
         case DATA_REVERT:
             return store
                 .set('localData', store.get('data'))
+        case DATA_MOUSE_PRESSED:
+            return store
+                .set('isMousePressed', payload.status)
         case DATA_CLEAR:
             return store
                 .set('localData', new defaultWeek())
@@ -91,6 +96,12 @@ export function setData(data) {
 export function clearData() {
     return {
         type: DATA_CLEAR
+    }
+}
+export function setMouseStatus(status) {
+    return {
+        type: DATA_MOUSE_PRESSED,
+        payload: {status}
     }
 }
 function statusHelper (response) {
@@ -195,9 +206,10 @@ export function encodeTimeSchedule(scheduleArr) {
         let start = 0;
         let end = 0;
         for (let i = 0; i < 24; i++) {
-            if(weekJs[key][i])
+            if(weekJs[key][i] && i!==23)
                 end++
             else {
+                if(i===23) end++
                 if(start !== end)
                     resultArr.push({bt:(start*60), et:((end*60)-1)})
                 end = i+1

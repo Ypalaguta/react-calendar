@@ -2,7 +2,10 @@ import React, {Component} from 'react'
 import Head from '../../components/calendar/Head'
 import Week from '../../components/calendar/Week'
 import {connect} from 'react-redux'
-import {setData, saveData, loadData, clearData, calendarSelector, datasEqualSelector} from "../../ducks/calendar"
+import {
+    setData, saveData, loadData, clearData, calendarSelector, datasEqualSelector,
+    moduleName, setMouseStatus
+} from "../../ducks/calendar"
 import {RaisedButton} from 'material-ui'
 import PropTypes from 'prop-types'
 import './index.css'
@@ -34,7 +37,8 @@ class Calendar extends Component {
                                       setWeeksData={this.setWeeksData}/>)
         }
         return (
-            <div>
+            <div onMouseDown={this.setMousePressedHandler} onMouseUp={this.setMouseUnpressedHandler}
+                 onMouseLeave={this.setMouseUnpressedHandler}>
                 <Head labels={[
                     '', 'ALL DAY',
                     '00:00', '',
@@ -76,6 +80,14 @@ class Calendar extends Component {
         const {saveData, weeks} = this.props
         saveData(weeks)
     }
+    setMousePressedHandler = () => {
+        const {setMouseStatus} = this.props
+        setMouseStatus(true)
+    }
+    setMouseUnpressedHandler = () => {
+        const {setMouseStatus} = this.props
+        setMouseStatus(false)
+    }
 }
 
 Calendar.propTypes = {
@@ -85,5 +97,5 @@ Calendar.propTypes = {
 
 export default connect((store) => ({
     weeks: calendarSelector(store),
-    isDatasEqual: datasEqualSelector(store)
-}), {setData, saveData, loadData, clearData})(Calendar);
+    isDatasEqual: datasEqualSelector(store),
+}), {setData, saveData, loadData, clearData, setMouseStatus})(Calendar);
