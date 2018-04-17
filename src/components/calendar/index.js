@@ -10,18 +10,6 @@ import {RaisedButton} from 'material-ui'
 import PropTypes from 'prop-types'
 import './index.css'
 
-const buttonStyle = {
-    backgroundColor: '#949494',
-    color: '#fff',
-}
-const divStyle = {
-    marginRight: '10px'
-}
-const paddings = {
-    paddingLeft: '20px',
-    paddingRight: '20px'
-}
-
 class Calendar extends Component {
     componentWillMount() {
         this.props.loadData();
@@ -52,10 +40,8 @@ class Calendar extends Component {
                 ]}/>
                 {weekComponents}
                 <div className='buttonsRow'>
-                    <RaisedButton buttonStyle={buttonStyle} style={divStyle} onClick={this.clickClearButtonHandler}
-                                  overlayStyle={paddings} disabled={this.canClear(weeks)}>Clear</RaisedButton>
-                    <RaisedButton buttonStyle={buttonStyle} style={divStyle} overlayStyle={paddings}
-                    disabled={isDatasEqual} onClick={this.clickSaveDataHandler}>Save changes</RaisedButton>
+                    <RaisedButton className='raisedBtn' onClick={this.clickClearButtonHandler} disabled={this.canClear(weeks)}>Clear</RaisedButton>
+                    <RaisedButton className='raisedBtn' disabled={isDatasEqual} onClick={this.clickSaveDataHandler}>Save changes</RaisedButton>
                 </div>
             </div>
         );

@@ -65,6 +65,18 @@
     width: 260px;
     padding-left: 461px;
 }
+
+.raisedBtn button:disabled div{
+    padding-right: 15px;
+    padding-left: 15px;
+}
+.raisedBtn button div>div{
+    padding-right: 15px;
+    padding-left: 15px;
+}
+.raisedBtn {
+    margin-right: 15px;
+}
 button:disabled div {
     background: #d0d0d0;
 }
